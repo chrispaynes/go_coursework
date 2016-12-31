@@ -1,18 +1,22 @@
 package main
 
-import (
-	// "fmt"
-	"testing"
-)
+import "testing"
 
-func TestReturn200StatusCode(t *testing.T) {
-	t.Log("getData receives 200 reponse from Chicago Public Transit Bus Route 22")
+func TestXMLContentResponse(t *testing.T) {
+	t.Log("connectToRoute() receives XML Response from Chicago Transit Authority API\n")
 	resp, err := connectToRoute(22)
+	resultContentType := resp.Header.Get("Content-Type")
+	expectedContentType := "text/xml;charset=UTF-8"
+
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	defer resp.Body.Close()
 
-	if resp.StatusCode != 200 || err != nil {
-		t.Errorf("Expected to connect to the site", err)
+	if resultContentType != expectedContentType {
+		t.Error("Received Content-Type:\t", resultContentType, "Expected:\t", expectedContentType)
+		t.Fatal("Did not receive an XML response from CTA API")
 	}
 }
 
