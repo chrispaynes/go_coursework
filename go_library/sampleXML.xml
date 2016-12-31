@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classify xmlns="http://classify.oclc.org">
+  <response code="4"/>
+  <!--Classify is a product of OCLC Online Computer Library Center: http://classify.oclc.org-->
+  <workCount>357</workCount>
+  <start>0</start>
+  <maxRecs>25</maxRecs>
+  <orderBy>thold desc</orderBy>
+  <input type="author">vonnegut</input>
+  <works>
+    <work author="Vonnegut, Kurt | Vonnegut, Kurt | Douthat, Ross Gregory, 1979-" editions="613" format="Book" holdings="11978" hyr="2016" itemtype="itemtype-book" lyr="1953" owi="175304" title="Slaughterhouse-five : or, The children's crusade, a duty-dance with death." wi="1116093"/>
+    <work author="Vonnegut, Kurt" editions="315" format="Book" holdings="7291" hyr="2015" itemtype="itemtype-book" lyr="1960" owi="401684" title="Cat's cradle" wi="10193271"/>
+    <work author="Vonnegut, Kurt | Dong, Yaoshan" editions="244" format="Book" holdings="5834" hyr="2014" itemtype="itemtype-book" lyr="1973" owi="456418" title="Breakfast of champions, or, Goodbye blue Monday!" wi="1149228"/>
+    <work author="Vonnegut, Kurt | Perry, Roger, 1933- [Editor] | Watkins, Graham [Author] | Philip, 1921- [Author of introduction]" editions="150" format="Book" holdings="5104" hyr="2015" itemtype="itemtype-book" lyr="1984" owi="1859790419" title="GalÃ¡pagos : a novel" wi="11866009"/>
+    <work author="Vonnegut, Kurt" editions="159" format="Book" holdings="4665" hyr="2013" itemtype="itemtype-book" lyr="1927" owi="146827" title="Jailbird : a novel" wi="10004787"/>
+    <work author="Vonnegut, Kurt" editions="238" format="Book" holdings="4624" hyr="2014" itemtype="itemtype-book" lyr="1919" owi="544467" title="The sirens of Titan" wi="10671014"/>
+    <work author="Vonnegut, Kurt" editions="225" format="Book" holdings="4564" hyr="2010" itemtype="itemtype-book" lyr="1952" owi="1376700" title="Player piano" wi="10212361"/>
+    <work author="Vonnegut, Kurt" editions="108" format="Book" holdings="4119" hyr="2014" itemtype="itemtype-book" lyr="1959" owi="543978" title="Hocus pocus" wi="185809435"/>
+    <work author="Vonnegut, Kurt" editions="145" format="Book" holdings="4096" hyr="2013" itemtype="itemtype-book" lyr="1969" owi="1178290084" title="Deadeye Dick" wi="10143255"/>
+    <work author="Vonnegut, Kurt" editions="231" format="Book" holdings="4035" hyr="2014" itemtype="itemtype-book" lyr="1963" owi="2851913" title="God bless you, Mr. Rosewater : or, Pearls before swine" wi="10004967"/>
+    <work author="Vonnegut, Kurt | LÃ¼, Tongliu, 1938-2005" editions="122" format="Book" holdings="4009" hyr="2015" itemtype="itemtype-book" lyr="1979" owi="133007" title="Bluebeard : a novel" wi="156730442"/>
+    <work author="Vonnegut, Kurt" editions="167" format="Book" holdings="3888" hyr="2014" itemtype="itemtype-book" lyr="1950" owi="639444" title="Welcome to the monkey house : a collection of short works" wi="1197375"/>
+    <work author="Vonnegut, Kurt" editions="165" format="Book" holdings="3867" hyr="2016" itemtype="itemtype-book" lyr="1976" owi="456882" title="Slapstick : or, Lonesome No More! : A Novel" wi="14353194"/>
+    <work author="Vonnegut, Kurt | Liu, Xirong | Wang, Jianxin | Yao, Mang | Jiang, Yinghua | Yu, Jianhua" editions="106" format="Book" holdings="3700" hyr="2014" itemtype="itemtype-book" lyr="1938" owi="41214" title="Timequake" wi="14673210"/>
+    <work author="Vonnegut, Kurt" editions="259" format="Book" holdings="3671" hyr="2014" itemtype="itemtype-book" lyr="1920" owi="1430098" title="Mother night" wi="10004755"/>
+    <work author="Vonnegut, Kurt | Simon, Daniel, 1957- [Editor]" editions="53" format="Book" holdings="2976" hyr="2014" itemtype="itemtype-book" lyr="1936" owi="938910" title="A man without a country" wi="122255605"/>
+    <work author="Vonnegut, Kurt" editions="73" format="Book" holdings="2855" hyr="2009" itemtype="itemtype-book" lyr="1981" owi="456799" title="Palm Sunday : an autobiographical collage" wi="10705468"/>
+    <work author="Vonnegut, Kurt" editions="29" format="Book" holdings="2608" hyr="2009" itemtype="itemtype-book" lyr="2008" owi="117306590" title="Armageddon in retrospect : and other new and unpublished writings on war and peace" wi="183266934"/>
+    <work author="Vonnegut, Kurt | KrzyÅ¼anowski, Julian, 1892-1976 [Associated name; Other]" editions="93" format="Book" holdings="2469" hyr="2012" itemtype="itemtype-book" lyr="1954" owi="2829624517" title="Happy birthday, Wanda June : a play" wi="10049003"/>
+    <work author="Vonnegut, Kurt" editions="34" format="Book" holdings="2348" hyr="2011" itemtype="itemtype-book" lyr="1999" owi="25866835" title="Bagombo snuff box : uncollected short fiction" wi="154636202"/>
+    <work author="Vonnegut, Kurt" editions="79" format="Book" holdings="2278" hyr="2012" itemtype="itemtype-book" lyr="1965" owi="456925" title="Wampeters, foma &amp;amp; granfalloons (opinions)" wi="123185899"/>
+    <work author="Vonnegut, Kurt | Wakefield, Dan [Author; Editor; Author of introduction] | McCartan, Tom" editions="39" format="Book" holdings="2181" hyr="2014" itemtype="itemtype-book" lyr="1974" owi="1079072664" title="Kurt Vonnegut : letters" wi="164684810"/>
+    <work author="Vonnegut, Kurt" editions="43" format="Book" holdings="2045" hyr="2013" itemtype="itemtype-book" lyr="1982" owi="24713214" title="Fates worse than death : an autobiographical collage of the 1980s" wi="189487164"/>
+    <work author="Vonnegut, Kurt" editions="22" format="Book" holdings="1970" hyr="2013" itemtype="itemtype-book" lyr="2009" owi="793207000" title="Look at the birdie : unpublished short fiction" wi="297147176"/>
+    <work author="Vonnegut, Kurt" editions="16" format="Book" holdings="1812" hyr="2013" itemtype="itemtype-book" lyr="2011" owi="796777322" title="While mortals sleep : unpublished short fiction" wi="613432323"/>
+  </works>
+  <navigation>
+    <pages>
+      <page>
+        <label>1</label>
+      </page>
+      <page>
+        <label>2</label>
+        <link>25</link>
+      </page>
+      <page>
+        <label>3</label>
+        <link>50</link>
+      </page>
+    </pages>
+    <next>25</next>
+    <last>350</last>
+  </navigation>
+</classify>
