@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"testing"
 )
@@ -63,19 +64,31 @@ func TestUnmarshalToSlice(t *testing.T) {
 }
 
 func TestFindsBusesNorthOfOffice(t *testing.T) {
-	t.Log("northOfOffice filters buses currently north of the office")
-	_, err := fetchRouteData(22)
-	//routes := mapToRoute(resp)
+	t.Log("filterNorthOfOffice returns buses currently north of 41.98 degrees latitude")
 
-	//actual
-	//expected =
+	mockData, err := os.Open("mocks/route22.xml")
+	defer mockData.Close()
+	route := mapToRoute(mockData)
+	result := filterNorthOfOffice(route.Buses)
+	expected := []Bus{
+		{"4388", "42.01676344871521", "South Bound"},
+		{"4350", "41.99443111134999", "South Bound"},
+		{"4377", "41.98397789001465", "North Bound"},
+		{"4345", "42.01595086566473", "North Bound"},
+		{"4363", "42.01837830624338", "North Bound"},
+		{"4339", "42.018760681152344", "North West Bound"},
+	}
 
 	if err != nil {
 		t.Fatal(err)
 	}
 
-}
+	for index, bus := range result {
+		fmt.Println(bus)
+		if bus != expected[index] {
+			t.Error("Expected: \t", bus)
+			t.Error("Received: \t", expected[index])
+		}
+	}
 
-//
-// Test prints northbound buses that currently north the office_latitude (41.98)
-// Test osutput buses to a table
+}
