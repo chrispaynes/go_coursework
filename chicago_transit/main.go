@@ -3,6 +3,8 @@ package main
 import (
 	"encoding/xml"
 	"fmt"
+	"io"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"strconv"
@@ -25,7 +27,7 @@ func main() {
 
 }
 
-func connectToRoute(route int) (*http.Response, error) {
+func fetchRouteData(route int) (io.ReadCloser, error) {
 	url := "http://ctabustracker.com/bustime/map/getBusesForRoute.jsp?route=" + strconv.Itoa(route)
 	resp, err := http.Get(url)
 
@@ -35,12 +37,17 @@ func connectToRoute(route int) (*http.Response, error) {
 	}
 
 	defer resp.Body.Close()
-
-	return resp, err
+	return resp.Body, err
 }
 
-func mapToRoute(body string) Route {
+func mapToRoute(resp io.ReadCloser) Route {
 	r := Route{}
-	xml.Unmarshal([]byte(body), &r)
+	body, err := ioutil.ReadAll(resp)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	xml.Unmarshal(body, &r)
 	return r
 }
