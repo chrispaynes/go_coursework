@@ -13,10 +13,10 @@ import (
 
 // A Bus represent a vehicle belonging to a Route
 type Bus struct {
-	ID  string `xml:"id"`
-	Lat string `xml:"lat"`
-	Lon string `xml:"lon"`
-	Dir string `xml:"d"`
+	ID  int     `xml:"id"`
+	Lat float64 `xml:"lat"`
+	Lon float64 `xml:"lon"`
+	Dir string  `xml:"d"`
 }
 
 // A Route represents a Bus collection traveling a similar path at a given time
@@ -25,21 +25,17 @@ type Route struct {
 	Time  string `xml:"time"`
 }
 
+// A Point represents a location with latitude and longitude coordinates
 type Point struct {
 	lat float64
 	lon float64
 }
 
+// const officeLat = 41.98
+var office = &Point{41.9801433, -87.6683411}
+
 func main() {
 
-}
-
-func (b *Bus) sliceLat() string {
-	return b.Lat[0:7]
-}
-
-func (b *Bus) sliceLon() string {
-	return b.Lon[0:8]
 }
 
 func fetchRouteData(route int) (io.ReadCloser, error) {
@@ -85,14 +81,9 @@ func createTable(route []Bus) string {
 
 func filterNorthOfOffice(buses []Bus) []Bus {
 	var filtered []Bus
-	const officeLat = 41.98
 
 	for _, bus := range buses {
-		bus.Lon = bus.sliceLon()
-		bus.Lat = bus.sliceLat()
-		lat, _ := strconv.ParseFloat(bus.Lat, 64)
-
-		if lat > officeLat {
+		if bus.Lat > office.lat {
 			filtered = append(filtered, bus)
 		}
 	}
@@ -124,5 +115,13 @@ func findDistance(p1, p2 *Point) float64 {
 }
 
 func withinHalfMile(buses []Bus) []Bus {
-	return []Bus{{"4377", "41.9839", "-87.6687", "North Bound"}}
+	var filtered []Bus
+
+	for _, bus := range buses {
+		if findDistance(&Point{bus.Lat, bus.Lon}, office) < 0.6 {
+			filtered = append(filtered, bus)
+		}
+	}
+
+	return filtered
 }

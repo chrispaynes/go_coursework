@@ -7,9 +7,6 @@ Travis traveled to Chicago and left his suitcase on the Clark Street #22 bus on 
 
 
 ##Todo
-* Print Northbound buses that currently north the office_latitude (41.98)
-* Output buses to a table
-* Monitor Northbound buses and report their distance from the office
 * Display a web alert when a bus gets within 0.5 miles of a bus location
 * Display A Google Map of the Bus with the Suitcase
 
@@ -17,6 +14,7 @@ Travis traveled to Chicago and left his suitcase on the Clark Street #22 bus on 
 * Building Type Structs
 * Chicago Transit Authority API
 * Data Scraping
+* Haversine Formula
 * HTTP GET Request
 * Google Maps API
 * Testing Package
@@ -29,3 +27,7 @@ Todo
  * <b>[Go's Standard Testing Package](https://golang.org/pkg/testing/)</b>
 Provides support for automated testing of Go packages.<br> 
    ``` $ go test -v ```
+   To run an individual test, use `func TestMyCustomTest(...){...}` but strip of the "Test" prefix on the func name
+   ``` $ go test -v -run MyCustomTest ./```
+   Output basic Test Cover Percentages to command line
+   ``` $ go tool cover -func=cover.out ```
