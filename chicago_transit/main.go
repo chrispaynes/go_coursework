@@ -11,12 +11,10 @@ import (
 	"strconv"
 )
 
-// A Bus represent a vehicle belonging to a Route
 type Bus struct {
-	ID  int     `xml:"id"`
-	Lat float64 `xml:"lat"`
-	Lon float64 `xml:"lon"`
-	Dir string  `xml:"d"`
+	ID int `xml:"id"`
+	Point
+	Dir string `xml:"d"`
 }
 
 // A Route represents a Bus collection traveling a similar path at a given time
@@ -27,8 +25,8 @@ type Route struct {
 
 // A Point represents a location with latitude and longitude coordinates
 type Point struct {
-	lat float64
-	lon float64
+	Lat float64 `xml:"lat"`
+	Lon float64 `xml:"lon"`
 }
 
 var office = &Point{41.9801433, -87.6683411}
@@ -80,7 +78,7 @@ func filterNorthOfOffice(buses []Bus) []Bus {
 	var filtered []Bus
 
 	for _, bus := range buses {
-		if bus.Lat > office.lat {
+		if bus.Point.Lat > office.Lat {
 			filtered = append(filtered, bus)
 		}
 	}
@@ -97,7 +95,7 @@ func createTable(route []Bus, title string) string {
 	footer := "----------------------------------------------------"
 
 	for _, bus := range route {
-		body += fmt.Sprintf("%v\t %v\t %v\t %v\n", bus.ID, bus.Lat, bus.Lon, bus.Dir)
+		body += fmt.Sprintf("%v\t %v\t %v\t %v\n", bus.ID, bus.Point.Lat, bus.Point.Lon, bus.Dir)
 	}
 
 	return header + body + footer
@@ -107,7 +105,7 @@ func withinHalfMile(buses []Bus) []Bus {
 	var filtered []Bus
 
 	for _, bus := range buses {
-		if findDistance(&Point{bus.Lat, bus.Lon}, office) < 0.6 {
+		if findDistance(&bus.Point, office) < 0.6 {
 			filtered = append(filtered, bus)
 		}
 	}
@@ -122,11 +120,11 @@ func findDistance(p1, p2 *Point) float64 {
 	const earthRadius = 3961
 	const radians = math.Pi / 180.0
 
-	dLat := (p2.lat - p1.lat) * radians
-	dLon := (p2.lon - p1.lon) * radians
+	dLat := (p2.Lat - p1.Lat) * radians
+	dLon := (p2.Lon - p1.Lon) * radians
 
-	lat1 := p1.lat * radians
-	lat2 := p2.lat * radians
+	lat1 := p1.Lat * radians
+	lat2 := p2.Lat * radians
 
 	a := (math.Sin(dLat/2) * math.Sin(dLat/2)) +
 		(math.Sin(dLon/2) * math.Sin(dLon/2) *
