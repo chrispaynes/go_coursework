@@ -121,33 +121,28 @@ func calcMean(rows [][]string, col int) float64 {
 	return total / float64(len(rows))
 }
 
+// calcMedian returns the median value for a given data column
 func calcMedian(rows [][]string, index int) float64 {
-	// array to hold record values in ascending order
-	var sorted_arr []float64
+	var vals []float64
 
-	// Parses columns/slices from strings to float64 precision
-	// appends each value to the sorted array
-	for i, row := range rows {
-		if i != 0 {
-			value, _ := strconv.ParseFloat(row[index], 64)
-			sorted_arr = append(sorted_arr, value)
-		}
+	for _, row := range rows {
+		val, _ := strconv.ParseFloat(row[index], 64)
+		vals = append(vals, val)
 	}
 
-	// // takes a slice of []float64s and sorts in ascending order
-	sort.Float64s(sorted_arr)
+	sort.Float64s(vals)
 
-	// for slices with an even number of elements...
-	// the median is the average of the middle two slice numbers
-	if len(sorted_arr)%2 == 0 {
-		mid_num := len(sorted_arr) / 2
-		mid_high_num := sorted_arr[mid_num]
-		mid_low_num := sorted_arr[mid_num-1]
-		return (mid_high_num + mid_low_num) / 2
+	if len(vals)%2 == 0 {
+		return getEvenMedian(vals)
+	} else {
+		mid := len(vals) / 2
+		return vals[mid]
 	}
+}
 
-	// for slices with an odd number of elements...
-	// the median is the middle slice number
-	mid_num := len(sorted_arr) / 2
-	return sorted_arr[mid_num]
+func getEvenMedian(n []float64) float64 {
+	mid := len(n) / 2
+	midLow := n[mid-1]
+	midHigh := n[mid]
+	return (midHigh + midLow) / 2
 }
