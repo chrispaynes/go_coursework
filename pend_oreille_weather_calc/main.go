@@ -25,8 +25,8 @@ func main() {
 	// Creates HTTP Get request from data_source argument
 	// Returns response body or an error
 	resp, err := http.Get(data_source)
+	defer resp.Body.Close()
 
-	// Prints fatal errors and immediately calls os.Exit(1)
 	if err != nil {
 		fmt.Printf("Did not receive a HTTP response from %v\n", "\""+data_source+"\"")
 		log.Fatal(err)
@@ -43,12 +43,6 @@ func main() {
 
 	// Sets object to ignore leading white space in a field
 	rdr.TrimLeadingSpace = true
-
-	// Defers until the surrounding function executes its return statement
-	// OR defers until the function reaches its function body ending
-	// OR defers because the corresponding goroutine is panicking
-	// Closes the reader
-	defer resp.Body.Close()
 
 	// ReadAll uses *Reader to read the argument's remaining records
 	// Reads and slices each record/line from source file until io.EOF
@@ -90,24 +84,14 @@ func main() {
 	//   fmt.Println("#", i, " - ", row[1], " ", row[2], " ", row[7])
 	// }
 
-	fmt.Println("----------------------------------------------")
-	fmt.Println("\t   ", rows[0][1], rows[0][2], rows[0][7])
-	fmt.Println("TOTAL RECORDS:", len(rows)-1)
-	fmt.Println("----------------------------------------------")
-	// calculates mean and median for columns 1, 2, 7 (Air_Temp, Barometric_Press, and Wind_Speed)
-	fmt.Println("Air Temp:", calcMean(rows, 1), calcMedian(rows, 1))
-	fmt.Println("Barometric Pressure:", calcMean(rows, 2), calcMedian(rows, 2))
-	fmt.Println("Wind Speed:", calcMean(rows, 7), calcMedian(rows, 7))
+	createTable(rows)
 
 	// logs end time for application
 	end := time.Now()
-	// calculates the run time speed for func main()
-	// .sub() returns the duration between 2 times (start and end)
 	delta := end.Sub(start)
 
-	fmt.Println("Program runtime is", delta)
-
-} // end main func
+	fmt.Println("\nProgram runtime is", delta)
+}
 
 // calcMean returns the mean value for a given data column
 func calcMean(rows [][]string, col int) float64 {
@@ -145,4 +129,16 @@ func getEvenMedian(n []float64) float64 {
 	midLow := n[mid-1]
 	midHigh := n[mid]
 	return (midHigh + midLow) / 2
+}
+
+func createTable(rows [][]string) {
+	fmt.Println("\n============================================================")
+	fmt.Println("           LAKE PEND OREILLE, IDAHO WEATHER DATA            ")
+	fmt.Printf("                   TOTAL RECORDS: %v\n", len(rows)-1)
+	fmt.Println("============================================================")
+	fmt.Println("Column\t\t\t Mean\t\t\t Median\n")
+	fmt.Printf("%v\t\t %v\t %v\t\n", rows[0][1], calcMean(rows, 1), calcMedian(rows, 1))
+	fmt.Printf("%v\t %v\t %v\t\n", rows[0][2], calcMean(rows, 2), calcMedian(rows, 2))
+	fmt.Printf("%v\t\t %v\t %v\t\n", rows[0][7], calcMean(rows, 7), calcMedian(rows, 7))
+	fmt.Println("============================================================")
 }
