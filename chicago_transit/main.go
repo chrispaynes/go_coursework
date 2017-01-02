@@ -53,24 +53,19 @@ func mapToRoute(resp io.ReadCloser) Route {
 	return r
 }
 
-func createTable(route Route) string {
-	officeLatitude := 41.98
+func createTable(route []Bus) string {
+	var body string
+	header := "\n----------------------------------------------------" +
+		"\nBUSES NORTH OF 41.98 LATITUDE" +
+		"\n----------------------------------------------------" +
+		"\nID\t Latitude\t\t Direction\n"
+	footer := "----------------------------------------------------"
 
-	fmt.Println("\n----------------------------------------------------")
-	fmt.Println("BUSES NORTH OF 41.98 LATITUDE")
-	fmt.Println("----------------------------------------------------")
-	fmt.Println("ID\t Latitude\t\t Direction")
-	//for _, bus := range actual.Buses {
-	for _, bus := range route.Buses {
-		lat, _ := strconv.ParseFloat(bus.Latitude, 64)
-
-		if lat > officeLatitude {
-			fmt.Printf("%v\t %v\t %v\t \n", bus.ID, bus.Latitude, bus.Direction)
-		}
+	for _, bus := range route {
+		body += fmt.Sprintf("%v\t %v\t %v\n", bus.ID, bus.Latitude, bus.Direction)
 	}
-	fmt.Println("----------------------------------------------------")
 
-	return ""
+	return header + body + footer
 }
 
 func filterNorthOfOffice(buses []Bus) []Bus {

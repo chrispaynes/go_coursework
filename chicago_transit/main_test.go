@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"os"
 	"testing"
 )
@@ -84,11 +83,40 @@ func TestFindsBusesNorthOfOffice(t *testing.T) {
 	}
 
 	for index, bus := range result {
-		fmt.Println(bus)
 		if bus != expected[index] {
 			t.Error("Expected: \t", bus)
 			t.Error("Received: \t", expected[index])
 		}
 	}
 
+}
+
+func TestCreateTable(t *testing.T) {
+	t.Log("createTable() creates a data table of buses")
+	mockData, err := os.Open("mocks/route22.xml")
+	defer mockData.Close()
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	routes := mapToRoute(mockData)
+	filtered := filterNorthOfOffice(routes.Buses)
+	result := createTable(filtered)
+	expected :=
+		"\n----------------------------------------------------" +
+			"\nBUSES NORTH OF 41.98 LATITUDE" +
+			"\n----------------------------------------------------" +
+			"\nID\t Latitude\t\t Direction\n" +
+			"4388\t 42.01676344871521\t South Bound\n" +
+			"4350\t 41.99443111134999\t South Bound\n" +
+			"4377\t 41.98397789001465\t North Bound\n" +
+			"4345\t 42.01595086566473\t North Bound\n" +
+			"4363\t 42.01837830624338\t North Bound\n" +
+			"4339\t 42.018760681152344\t North West Bound\n" +
+			"----------------------------------------------------"
+
+	if result != expected {
+		t.Error("Received:\t", result, "Expected:\t", expected)
+	}
 }
