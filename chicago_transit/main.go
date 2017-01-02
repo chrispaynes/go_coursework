@@ -6,33 +6,40 @@ import (
 	"io"
 	"io/ioutil"
 	"log"
+	"math"
 	"net/http"
 	"strconv"
 )
 
-// Bus is one of many vehicles that belong to a Route
+// A Bus represent a vehicle belonging to a Route
 type Bus struct {
-	ID        string `xml:"id"`
-	Latitude  string `xml:"lat"`
-	Longitude string `xml:"lon"`
-	Direction string `xml:"d"`
+	ID  string `xml:"id"`
+	Lat string `xml:"lat"`
+	Lon string `xml:"lon"`
+	Dir string `xml:"d"`
 }
 
-// Route is a collection of buses following a similar path at a given time
+// A Route represents a Bus collection traveling a similar path at a given time
 type Route struct {
 	Buses []Bus  `xml:"bus"`
 	Time  string `xml:"time"`
+}
+
+type Point struct {
+	lat float64
+	lon float64
 }
 
 func main() {
 
 }
 
-func (b *Bus) sliceLatitude() string {
-	return b.Latitude[0:7]
+func (b *Bus) sliceLat() string {
+	return b.Lat[0:7]
 }
-func (b *Bus) sliceLongitude() string {
-	return b.Longitude[0:8]
+
+func (b *Bus) sliceLon() string {
+	return b.Lon[0:8]
 }
 
 func fetchRouteData(route int) (io.ReadCloser, error) {
@@ -70,7 +77,7 @@ func createTable(route []Bus) string {
 	footer := "----------------------------------------------------"
 
 	for _, bus := range route {
-		body += fmt.Sprintf("%v\t %v\t %v\t %v\n", bus.ID, bus.Latitude, bus.Longitude, bus.Direction)
+		body += fmt.Sprintf("%v\t %v\t %v\t %v\n", bus.ID, bus.Lat, bus.Lon, bus.Dir)
 	}
 
 	return header + body + footer
@@ -78,14 +85,14 @@ func createTable(route []Bus) string {
 
 func filterNorthOfOffice(buses []Bus) []Bus {
 	var filtered []Bus
-	const officeLatitude = 41.98
+	const officeLat = 41.98
 
 	for _, bus := range buses {
-		bus.Longitude = bus.sliceLongitude()
-		bus.Latitude = bus.sliceLatitude()
-		lat, _ := strconv.ParseFloat(bus.Latitude, 64)
+		bus.Lon = bus.sliceLon()
+		bus.Lat = bus.sliceLat()
+		lat, _ := strconv.ParseFloat(bus.Lat, 64)
 
-		if lat > officeLatitude {
+		if lat > officeLat {
 			filtered = append(filtered, bus)
 		}
 	}
@@ -93,6 +100,29 @@ func filterNorthOfOffice(buses []Bus) []Bus {
 	return filtered
 }
 
+// findDistance uses the Haversine formula to calculate the great-circle
+// distance between two points on a map.
+// source: http://www.movable-type.co.uk/scripts/latlong.html
+func findDistance(p1, p2 *Point) float64 {
+	const earthRadius = 3961
+	const radians = math.Pi / 180.0
+
+	dLat := (p2.lat - p1.lat) * radians
+	dLon := (p2.lon - p1.lon) * radians
+
+	lat1 := p1.lat * radians
+	lat2 := p2.lat * radians
+
+	a := (math.Sin(dLat/2) * math.Sin(dLat/2)) +
+		(math.Sin(dLon/2) * math.Sin(dLon/2) *
+			math.Cos(lat1) * math.Cos(lat2))
+
+	c := 2 * math.Atan2(math.Sqrt(a), math.Sqrt(1-a))
+
+	return (earthRadius * c)
+
+}
+
 func withinHalfMile(buses []Bus) []Bus {
-	return []Bus{{"4377", "41.9839", "-87.6687", "North Boundxx"}}
+	return []Bus{{"4377", "41.9839", "-87.6687", "North Bound"}}
 }

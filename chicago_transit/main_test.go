@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"testing"
 )
@@ -55,8 +56,8 @@ func TestUnmarshalToSlice(t *testing.T) {
 		Time: "3:35 PM"}
 
 	for i, bus := range result.Buses {
-		bus.Longitude = bus.sliceLongitude()
-		bus.Latitude = bus.sliceLatitude()
+		bus.Lon = bus.sliceLon()
+		bus.Lat = bus.sliceLat()
 		if bus != expected.Buses[i] {
 			t.Error("Expected: \t", expected.Buses[i])
 			t.Error("Received: \t", bus)
@@ -119,6 +120,23 @@ func TestCreateTable(t *testing.T) {
 			"----------------------------------------------------"
 
 	if result != expected {
-		t.Error("Received:\t", result, "Expected:\t", expected)
+		t.Error("Received:\t", result)
+		t.Error("Expected:\t", expected)
+	}
+}
+
+func TestFindDistance(t *testing.T) {
+	t.Log("findDistance() finds the great-circle distance between two map points")
+
+	p1 := &Point{41.9801433, -87.6683411}
+	p2 := &Point{41.9855176, -87.6702406}
+
+	result := fmt.Sprintf("%.3f", findDistance(p1, p2))
+
+	expected := "0.384"
+
+	if result != expected {
+		t.Error("Received:\t", result)
+		t.Error("Expected:\t", expected)
 	}
 }
