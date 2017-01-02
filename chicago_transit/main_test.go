@@ -101,7 +101,7 @@ func TestCreateTable(t *testing.T) {
 
 	routes := mapToRoute(mockData)
 	filtered := filterNorthOfOffice(routes.Buses)
-	result := createTable(filtered)
+	result := createTable(filtered, "BUSES NORTH OF 41.98 LATITUDE")
 	expected :=
 		"\n----------------------------------------------------" +
 			"\nBUSES NORTH OF 41.98 LATITUDE" +

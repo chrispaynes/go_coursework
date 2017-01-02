@@ -31,10 +31,22 @@ type Point struct {
 	lon float64
 }
 
-// const officeLat = 41.98
 var office = &Point{41.9801433, -87.6683411}
 
 func main() {
+	data, err := fetchRouteData(22)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	route := mapToRoute(data)
+	northOfOffice := filterNorthOfOffice(route.Buses)
+	closeBy := withinHalfMile(northOfOffice)
+
+	fmt.Println(createTable(route.Buses, "All BUSES ON ROUTE 22"))
+	fmt.Println(createTable(northOfOffice, "BUSES NORTH OF 41.98 LATITUDE"))
+	fmt.Println(createTable(closeBy, "BUSES WITHIN 0.5 MILES!!!"))
 
 }
 
@@ -64,10 +76,22 @@ func mapToRoute(resp io.ReadCloser) Route {
 	return r
 }
 
-func createTable(route []Bus) string {
+func filterNorthOfOffice(buses []Bus) []Bus {
+	var filtered []Bus
+
+	for _, bus := range buses {
+		if bus.Lat > office.lat {
+			filtered = append(filtered, bus)
+		}
+	}
+
+	return filtered
+}
+
+func createTable(route []Bus, title string) string {
 	var body string
 	header := "\n----------------------------------------------------" +
-		"\nBUSES NORTH OF 41.98 LATITUDE" +
+		"\n" + title +
 		"\n----------------------------------------------------" +
 		"\nID\t Latitude\t Longitude\t\t Direction\n"
 	footer := "----------------------------------------------------"
@@ -79,11 +103,11 @@ func createTable(route []Bus) string {
 	return header + body + footer
 }
 
-func filterNorthOfOffice(buses []Bus) []Bus {
+func withinHalfMile(buses []Bus) []Bus {
 	var filtered []Bus
 
 	for _, bus := range buses {
-		if bus.Lat > office.lat {
+		if findDistance(&Point{bus.Lat, bus.Lon}, office) < 0.6 {
 			filtered = append(filtered, bus)
 		}
 	}
@@ -112,16 +136,4 @@ func findDistance(p1, p2 *Point) float64 {
 
 	return (earthRadius * c)
 
-}
-
-func withinHalfMile(buses []Bus) []Bus {
-	var filtered []Bus
-
-	for _, bus := range buses {
-		if findDistance(&Point{bus.Lat, bus.Lon}, office) < 0.6 {
-			filtered = append(filtered, bus)
-		}
-	}
-
-	return filtered
 }
