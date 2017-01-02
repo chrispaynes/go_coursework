@@ -109,22 +109,16 @@ func main() {
 
 } // end main func
 
-// accepts a multi-dimensional slice and an index integer
-// returns a float64
-func calcMean(rows [][]string, index int) float64 {
+// calcMean returns the mean value for a given data column
+func calcMean(rows [][]string, col int) float64 {
 	var total float64
 
-	// Parses columns/slices from strings to float64 precision
-	// calculates total value during each loop iteration
-	for i, row := range rows {
-		if i != 0 {
-			val, _ := strconv.ParseFloat(row[index], 64)
-			total += val
-		}
+	for _, row := range rows {
+		val, _ := strconv.ParseFloat(row[col], 64)
+		total += val
 	}
 
-	// divides total by total number of records to calculate mean
-	return total / float64(len(rows)-1)
+	return total / float64(len(rows))
 }
 
 func calcMedian(rows [][]string, index int) float64 {
