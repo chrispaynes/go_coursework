@@ -14,6 +14,7 @@ import (
 type Bus struct {
 	ID        string `xml:"id"`
 	Latitude  string `xml:"lat"`
+	Longitude string `xml:"lon"`
 	Direction string `xml:"d"`
 }
 
@@ -25,6 +26,13 @@ type Route struct {
 
 func main() {
 
+}
+
+func (b *Bus) sliceLatitude() string {
+	return b.Latitude[0:7]
+}
+func (b *Bus) sliceLongitude() string {
+	return b.Longitude[0:8]
 }
 
 func fetchRouteData(route int) (io.ReadCloser, error) {
@@ -58,11 +66,11 @@ func createTable(route []Bus) string {
 	header := "\n----------------------------------------------------" +
 		"\nBUSES NORTH OF 41.98 LATITUDE" +
 		"\n----------------------------------------------------" +
-		"\nID\t Latitude\t\t Direction\n"
+		"\nID\t Latitude\t Longitude\t\t Direction\n"
 	footer := "----------------------------------------------------"
 
 	for _, bus := range route {
-		body += fmt.Sprintf("%v\t %v\t %v\n", bus.ID, bus.Latitude, bus.Direction)
+		body += fmt.Sprintf("%v\t %v\t %v\t %v\n", bus.ID, bus.Latitude, bus.Longitude, bus.Direction)
 	}
 
 	return header + body + footer
@@ -73,6 +81,8 @@ func filterNorthOfOffice(buses []Bus) []Bus {
 	const officeLatitude = 41.98
 
 	for _, bus := range buses {
+		bus.Longitude = bus.sliceLongitude()
+		bus.Latitude = bus.sliceLatitude()
 		lat, _ := strconv.ParseFloat(bus.Latitude, 64)
 
 		if lat > officeLatitude {
@@ -81,4 +91,8 @@ func filterNorthOfOffice(buses []Bus) []Bus {
 	}
 
 	return filtered
+}
+
+func withinHalfMile(buses []Bus) []Bus {
+	return []Bus{{"4377", "41.9839", "-87.6687", "North Boundxx"}}
 }
