@@ -7,8 +7,10 @@
 package main
 
 import (
+	"database/sql"
 	"encoding/csv"
 	"fmt"
+	_ "github.com/lib/pq"
 	"log"
 	"net/http"
 	"sort"
@@ -125,6 +127,7 @@ func calcMedian(rows [][]string, index int) float64 {
 }
 
 func getEvenMedian(n []float64) float64 {
+	sort.Float64s(n)
 	mid := len(n) / 2
 	midLow := n[mid-1]
 	midHigh := n[mid]
@@ -141,4 +144,36 @@ func createTable(rows [][]string) {
 	fmt.Printf("%v\t %v\t %v\t\n", rows[0][2], calcMean(rows, 2), calcMedian(rows, 2))
 	fmt.Printf("%v\t\t %v\t %v\t\n", rows[0][7], calcMean(rows, 7), calcMedian(rows, 7))
 	fmt.Println("============================================================")
+}
+
+func initDB() (*sql.DB, error) {
+	db, err := sql.Open("postgres", "postgres://postgres:postgres@localhost/pend_db_dev?sslmode=disable")
+
+	createDBTable(db, "deep_moor_2015")
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return db, err
+}
+
+func createDBTable(db *sql.DB, table string) error {
+	_, err := db.Exec(`CREATE TABLE IF NOT EXISTS deep_moor_2015(
+    pk SERIAL PRIMARY KEY,
+    date text,
+    time time,
+    air_temp numeric,
+    barometric_press numeric,
+    dew_point numeric,
+    relative_humidity numeric,
+    wind_dir numeric,
+    wind_gust numeric,
+    wind_speed numeric);`)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return err
 }

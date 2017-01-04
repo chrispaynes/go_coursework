@@ -182,7 +182,7 @@ func TestConnectToDatabase(t *testing.T) {
 	}
 }
 
-func TestCreateDBTable(t *testing.T) {
+func TestCreateTestDBTable(t *testing.T) {
 	t.Log("can insert table into database")
 
 	db, err := newTestDB()
@@ -217,5 +217,18 @@ func TestTableValueInsertion(t *testing.T) {
 		t.Fatal("Received error when connecting to test DB:\t", err)
 		t.Fatal("Received error when creating test DB table:\t", tblErr)
 		t.Error("Received error when inserting values into DB table:\t", result)
+	}
+}
+
+func TestInitDB(t *testing.T) {
+	t.Log("initDB() connects to a development DB and creates a table")
+
+	conn, err := initDB()
+	result := conn.Ping()
+
+	if result != nil || err != nil {
+		t.Error("Received Ping response:\t", result)
+		t.Error("Expected Ping response:\t", nil)
+		t.Fatal(err)
 	}
 }
