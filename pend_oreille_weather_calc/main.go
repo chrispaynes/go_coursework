@@ -10,27 +10,41 @@ import (
 	"database/sql"
 	"encoding/csv"
 	"fmt"
-	_ "github.com/lib/pq"
 	"log"
 	"net/http"
 	"sort"
 	"strconv"
 	"time"
+
+	_ "github.com/lib/pq"
 )
+
+type weatherRecord struct {
+	pk       int
+	date     string
+	time     string
+	temp     float64
+	bPress   float64
+	dewPt    float64
+	relHum   float64
+	windDir  float64
+	windGust float64
+	windSpd  float64
+}
 
 func main() {
 	// logs start time for application
 	start := time.Now()
 
-	data_source := "https://raw.githubusercontent.com/lyndadotcom/LPO_weatherdata/master/Environmental_Data_Deep_Moor_2015.txt"
+	dataSource := "https://raw.githubusercontent.com/lyndadotcom/LPO_weatherdata/master/Environmental_Data_Deep_Moor_2015.txt"
 
 	// Creates HTTP Get request from data_source argument
 	// Returns response body or an error
-	resp, err := http.Get(data_source)
+	resp, err := http.Get(dataSource)
 	defer resp.Body.Close()
 
 	if err != nil {
-		fmt.Printf("Did not receive a HTTP response from %v\n", "\""+data_source+"\"")
+		fmt.Printf("Did not receive a HTTP response from %v\n", "\""+dataSource+"\"")
 		log.Fatal(err)
 	}
 
@@ -120,10 +134,10 @@ func calcMedian(rows [][]string, index int) float64 {
 
 	if len(vals)%2 == 0 {
 		return getEvenMedian(vals)
-	} else {
-		mid := len(vals) / 2
-		return vals[mid]
 	}
+
+	mid := len(vals) / 2
+	return vals[mid]
 }
 
 func getEvenMedian(n []float64) float64 {
@@ -176,4 +190,8 @@ func createDBTable(db *sql.DB, table string) error {
 	}
 
 	return err
+}
+
+func insertDBRecord(db *sql.DB) {
+	db.Exec("INSERT INTO deep_moor_2015 values (0, '2015_06_04', '01:09:21', 57.70, 29.95, 51.22, 79.00, 163.40, 12.00, 10.00)")
 }

@@ -2,11 +2,13 @@ package main
 
 import (
 	"database/sql"
-	_ "github.com/lib/pq"
+	"fmt"
 	"math"
 	"math/rand"
 	"strconv"
 	"testing"
+
+	_ "github.com/lib/pq"
 )
 
 func TestCalcMeanCalculation(t *testing.T) {
@@ -229,6 +231,23 @@ func TestInitDB(t *testing.T) {
 	if result != nil || err != nil {
 		t.Error("Received Ping response:\t", result)
 		t.Error("Expected Ping response:\t", nil)
+		t.Fatal(err)
+	}
+}
+
+func TestInsertDBRecord(t *testing.T) {
+	t.Log("insertDBRecord() inserts weather data into development DB")
+
+	db, err := initDB()
+	insertDBRecord(db)
+	expected := weatherRecord{2, "2015_06_04", "01:09:21", 57.70, 29.95, 51.22, 79.00, 163.40, 12.00, 10.00}
+	var result weatherRecord
+	queryErr := db.QueryRow("SELECT air_temp FROM deep_moor_2015").Scan(&result)
+	fmt.Println(queryErr)
+
+	if result != expected {
+		t.Error("Received:\t", result)
+		t.Error("Expected:\t", expected)
 		t.Fatal(err)
 	}
 }
