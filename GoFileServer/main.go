@@ -10,6 +10,7 @@ func main() {
 	var dir string
 	port := flag.String("port", "3000", "communication port used to serve HTTP on")
 	path := flag.String("path", "", "filepath to serve")
+
 	flag.Parse()
 
 	if *path == "" {
