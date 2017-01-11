@@ -52,16 +52,23 @@ func ServePage(w http.ResponseWriter, r *http.Request) {
 	path := strings.TrimLeft(r.URL.Path, "/page/")
 
 	if path == "" {
-		http.NotFound(w, r)
+		pages, err := GetPages()
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		Tmpl.ExecuteTemplate(w, "pages", pages)
 		return
 	}
 
-	p := &Page{
-		Title:   strings.ToTitle(path),
-		Content: "Welcome to the Page",
+	page, err := GetPage(path)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
+		return
 	}
 
-	Tmpl.ExecuteTemplate(w, "page", p)
+	Tmpl.ExecuteTemplate(w, "page", page)
 }
 
 // ServePost serves a content post based on HTTP requests to "root/post"
@@ -95,10 +102,16 @@ func createPostTemplate(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 
 	if contentType == "page" {
-		Tmpl.ExecuteTemplate(w, "page", &Page{
+		p := &Page{
 			Title:   title,
 			Content: content,
-		})
+		}
+
+		_, err := CreatePage(p)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+		Tmpl.ExecuteTemplate(w, "page", p)
 		return
 	}
 
