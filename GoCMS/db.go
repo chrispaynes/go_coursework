@@ -30,6 +30,13 @@ func newDB() *PgStore {
 func CreatePage(p *Page) (int, error) {
 	var id int
 	err := store.DB.QueryRow("INSERT INTO pages(title, content) VALUES($1, $2) RETURNING id", p.Title, p.Content).Scan(&id)
+	return id, err
+}
+
+// CreatePage creates and inserts a Page into the database table
+func CreatePost(p *Post) (int, error) {
+	var id int
+	err := store.DB.QueryRow("INSERT INTO posts(title, content, date_created) VALUES($1, $2, $3) RETURNING id", p.Title, p.Content, p.DatePublished).Scan(&id)
 	fmt.Println(id)
 	return id, err
 }

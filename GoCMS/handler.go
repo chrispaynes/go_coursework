@@ -116,10 +116,25 @@ func createPostTemplate(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if contentType == "post" {
-		Tmpl.ExecuteTemplate(w, "post", &Post{
-			Title:   title,
-			Content: content,
-		})
+		p := &Post{
+			Title:         title,
+			Content:       content,
+			DatePublished: time.Now(),
+			Comments: []*Comment{
+				&Comment{
+					Author:        "Undefined User",
+					Comment:       r.FormValue("comment"),
+					DatePublished: time.Now().Add(-time.Hour / 2),
+				},
+			},
+		}
+
+		_, err := CreatePost(p)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+		Tmpl.ExecuteTemplate(w, "post", p)
+
 		return
 	}
 
