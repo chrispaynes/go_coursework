@@ -8,14 +8,14 @@ CREATE DATABASE gocms;
 GRANT ALL PRIVILEGES ON DATABASE gocms to gocms;
 
 -- Create new table to store pages.
-CREATE TABLE IF NOT EXISTS PAGES(
+CREATE TABLE IF NOT EXISTS pages(
   id            SERIAL     PRIMARY KEY,
   title         TEXT       NOT NULL,
   content       TEXT       NOT NULL
 );
 
 -- Create new table to store posts.
-CREATE TABLE IF NOT EXISTS POSTS(
+CREATE TABLE IF NOT EXISTS posts(
   id            SERIAL     PRIMARY KEY,
   title         TEXT       NOT NULL,
   content       TEXT       NOT NULL,
@@ -23,11 +23,11 @@ CREATE TABLE IF NOT EXISTS POSTS(
 );
 
 -- Create new table to store comments.
-CREATE TABLE IF NOT EXISTS COMMENTS(
+CREATE TABLE IF NOT EXISTS comments(
   id            SERIAL     PRIMARY KEY,
   author        TEXT       NOT NULL,
   content       TEXT       NOT NULL,
   date_created  DATE       NOT NULL,
-  post_id       INT        references POSTS(id)
+  post_id       INT        references posts(id)
 );
 
