@@ -15,17 +15,17 @@ func ServeIndex(w http.ResponseWriter, r *http.Request) {
 			&Post{
 				Title:         "Testing 1-2-3",
 				Content:       "Bravo Good Chap. Stellar Test",
-				DatePublished: time.Now(),
+				DatePublished: time.Now().UTC(),
 			},
 			&Post{
 				Title:         "Charlie Rose and the Chocolate Factory: Part I",
 				Content:       "Very exciting read Charlie. Looking forward to Part II.",
-				DatePublished: time.Now(),
+				DatePublished: time.Now().UTC(),
 				Comments: []*Comment{
 					&Comment{
 						Author:        "Dr. Foobazman",
 						Comment:       "Excellent post!",
-						DatePublished: time.Now().Add(-time.Hour / 2),
+						DatePublished: time.Now().UTC().Add(-time.Hour / 2),
 					},
 				},
 			},
@@ -87,7 +87,7 @@ func ServePost(w http.ResponseWriter, r *http.Request) {
 			&Comment{
 				Author:        "Dr. Post-Author",
 				Comment:       "Cool post.",
-				DatePublished: time.Now().Add(-time.Hour / 2),
+				DatePublished: time.Now().UTC().Add(-time.Hour / 2),
 			},
 		},
 	}
@@ -111,6 +111,7 @@ func createPostTemplate(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
+
 		Tmpl.ExecuteTemplate(w, "page", p)
 		return
 	}
@@ -119,12 +120,12 @@ func createPostTemplate(w http.ResponseWriter, r *http.Request) {
 		p := &Post{
 			Title:         title,
 			Content:       content,
-			DatePublished: time.Now(),
+			DatePublished: time.Now().UTC(),
 			Comments: []*Comment{
 				&Comment{
 					Author:        "Undefined User",
 					Comment:       r.FormValue("comment"),
-					DatePublished: time.Now().Add(-time.Hour / 2),
+					DatePublished: time.Now().UTC().Add(-time.Hour / 2),
 				},
 			},
 		}
@@ -133,6 +134,7 @@ func createPostTemplate(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
+
 		Tmpl.ExecuteTemplate(w, "post", p)
 
 		return
