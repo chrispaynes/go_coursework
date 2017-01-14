@@ -16,18 +16,18 @@ CREATE TABLE IF NOT EXISTS pages(
 
 -- Create new table to store posts.
 CREATE TABLE IF NOT EXISTS posts(
-  id            SERIAL     PRIMARY KEY,
-  title         TEXT       NOT NULL,
-  content       TEXT       NOT NULL,
-  date_created  DATE       NOT NULL
+  id            SERIAL          PRIMARY KEY,
+  title         TEXT            NOT NULL,
+  content       TEXT            NOT NULL,
+  date_created  TIMESTAMP       NOT NULL
 );
 
 -- Create new table to store comments.
 CREATE TABLE IF NOT EXISTS comments(
-  id            SERIAL     PRIMARY KEY,
-  author        TEXT       NOT NULL,
-  content       TEXT       NOT NULL,
-  date_created  DATE       NOT NULL,
-  post_id       INT        references posts(id)
+  id            SERIAL          PRIMARY KEY,
+  author        TEXT            NOT NULL,
+  content       TEXT            NOT NULL,
+  date_created  TIMESTAMP       NOT NULL,
+  post_id       INT             references posts(id)
 );
 
