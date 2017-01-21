@@ -68,10 +68,10 @@ func Test_ReadPost(t *testing.T) {
 		t.Errorf("Post IDs do not match: expected %d\n but received %d\n", po.ID, post.ID)
 	}
 	if post.Title != po.Title {
-		t.Errorf("Post Titles do not match: expected %d\n but received %d\n", po.Title, post.Title)
+		t.Errorf("Post Titles do not match: expected %s\n but received %s\n", po.Title, post.Title)
 	}
 	if post.Content != po.Content {
-		t.Errorf("Post Contents do not match: expected %d\n but received %d\n", po.Content, post.Content)
+		t.Errorf("Post Contents do not match: expected %s\n but received %s\n", po.Content, post.Content)
 	}
 
 	// TEST FAILING NEED BUG FIX: Postgres rounds time to Milliseconds and Go truncates time at Nanoseconds.
@@ -85,11 +85,11 @@ func Test_ReadPost(t *testing.T) {
 	}
 
 	if post.Comments[0].Author != po.Comments[0].Author {
-		t.Errorf("Post Comments.Author do not match: expected %d\n but received %d\n", po.Comments[0].Author, post.Comments[0].Author)
+		t.Errorf("Post Comments.Author do not match: expected %s\n but received %s\n", po.Comments[0].Author, post.Comments[0].Author)
 	}
 
 	if post.Comments[0].Comment != po.Comments[0].Comment {
-		t.Errorf("Post Comments.Author do not match: expected %d\n but received %d\n", po.Comments[0].Comment, post.Comments[0].Comment)
+		t.Errorf("Post Comments.Author do not match: expected %s\n but received %s\n", po.Comments[0].Comment, post.Comments[0].Comment)
 	}
 
 }
