@@ -1,15 +1,18 @@
 #GoCMS
 
 ##Features
+* Callbacks
 * Creating a Go Library
 * Postgres DB Connectivity
 * Dynamic Content Rendering
+* Function Chaining and Variable Functions
 * HTML Templating
+* Logging and Analytics
+* Middleware
 * Routing HTTP Requests
 * Testing
 
 ##TODO
-*Fix SQL DB initialize access privileges with gocms user
 
 ##Installation
 1. Install Postgres: [Detailed Postgres Installation Guides](https://wiki.postgresql.org/wiki/Detailed_installation_guides)
@@ -37,5 +40,9 @@ CREATE TABLE
 * Visit  `localhost:3000/new`  to add new pages and posts
 * Visit  `localhost:3000/page/`  to view and index of pages
 * Visit  `localhost:3000/page/1`  to visit a specific page
+* Visit  `localhost:3000/post/`  to view and index of posts
+* Visit  `localhost:3000/post/1`  to visit a specific page
 
 ##Running Tests
+From the root directory, run all `_test.go` files in the current directory
+`$ go test` for a basic pass/fail output or `$ go test -v` for a verbose output
