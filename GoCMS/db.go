@@ -55,6 +55,29 @@ func GetPost(id string) (*Post, error) {
 	return &post, err
 }
 
+func GetPosts() ([]*Post, error) {
+	rows, err := store.DB.Query("SELECT * FROM posts")
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	posts := []*Post{}
+	for rows.Next() {
+		var p Post
+		err = rows.Scan(&p.ID, &p.Title, &p.Content, &p.DatePublished)
+
+		if err != nil {
+			return nil, err
+		}
+
+		posts = append(posts, &p)
+	}
+
+	return posts, nil
+
+}
+
 // GetPage returns a Page record queried from a database table
 func GetPage(id string) (*Page, error) {
 	var p Page
