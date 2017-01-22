@@ -2,7 +2,9 @@
 
 ##Features
 * Callbacks
+* Context Passing
 * Creating a Go Library
+* Cryptography/bcrypt Hashing Algorithm
 * Postgres DB Connectivity
 * Dynamic Content Rendering
 * Function Chaining and Variable Functions
@@ -10,7 +12,9 @@
 * Logging and Analytics
 * Middleware
 * Routing HTTP Requests
+* Synchronization and Mutual Exclusion Locks
 * Testing
+* User Login/Authentication
 
 ##TODO
 
