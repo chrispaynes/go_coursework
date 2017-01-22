@@ -2,6 +2,7 @@ package main
 
 import (
 	"GoCMS/middleware"
+	"context"
 	"fmt"
 	"net/http"
 )
@@ -15,6 +16,13 @@ func panicker(w http.ResponseWriter, r *http.Request) {
 	panic(middleware.ErrInvalidEmail)
 }
 
+func withContext(ctx context.Context, w http.ResponseWriter, r *http.Request) {
+	bar := ctx.Value("foo")
+	if str, ok := bar.(string); ok {
+		w.Write([]byte(str))
+	}
+}
+
 func main() {
 	//sum := middleware.Add(1, 2, 3)
 	//fmt.Println(sum)
@@ -26,5 +34,6 @@ func main() {
 	logger := middleware.CreateLogger("middleware")
 	http.Handle("/panic", middleware.Recover(panicker))
 	http.Handle("/", middleware.Time(logger, hello))
+	http.Handle("/context", middleware.PassContext(withContext))
 	http.ListenAndServe(":3000", nil)
 }

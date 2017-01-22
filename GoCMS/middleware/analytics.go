@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"context"
 	"errors"
 	"log"
 	"net/http"
@@ -76,4 +77,12 @@ func Recover(next http.HandlerFunc) http.Handler {
 		}()
 		next.ServeHTTP(w, r)
 	})
+}
+
+// PassContext passes values between middleware funcs
+type PassContext func(ctx context.Context, w http.ResponseWriter, r *http.Request)
+
+func (fn PassContext) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	ctx := context.WithValue(context.Background(), "foo", "bar")
+	fn(ctx, w, r)
 }
