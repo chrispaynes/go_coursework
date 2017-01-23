@@ -1,6 +1,7 @@
 package cms
 
 import (
+	"fmt"
 	"net/http"
 	"strings"
 	"time"
@@ -8,28 +9,13 @@ import (
 
 // ServeIndex responses to HTTP requests
 func ServeIndex(w http.ResponseWriter, r *http.Request) {
+
+	posts, err := GetPosts()
+	fmt.Println(posts, err)
 	p := &Page{
 		Title:   "GO Content Management System",
 		Content: "Welcome",
-		Posts: []*Post{
-			&Post{
-				Title:         "Testing 1-2-3",
-				Content:       "Bravo Good Chap. Stellar Test",
-				DatePublished: time.Now().UTC(),
-			},
-			&Post{
-				Title:         "Charlie Rose and the Chocolate Factory: Part I",
-				Content:       "Very exciting read Charlie. Looking forward to Part II.",
-				DatePublished: time.Now().UTC(),
-				Comments: []*Comment{
-					&Comment{
-						Author:        "Dr. Foobazman",
-						Comment:       "Excellent post!",
-						DatePublished: time.Now().UTC().Add(-time.Hour / 2),
-					},
-				},
-			},
-		},
+		Posts:   posts,
 	}
 
 	Tmpl.ExecuteTemplate(w, "page", p)
@@ -73,23 +59,16 @@ func ServePage(w http.ResponseWriter, r *http.Request) {
 
 // ServePost serves a content post based on HTTP requests to "root/post"
 func ServePost(w http.ResponseWriter, r *http.Request) {
-	path := strings.TrimLeft(r.URL.Path, "/post/")
+	pathID := strings.TrimLeft(r.URL.Path, "/post/")
 
-	if path == "" {
+	if pathID == "" {
 		http.NotFound(w, r)
 		return
 	}
 
-	p := &Post{
-		Title:   strings.ToTitle(path),
-		Content: "Welcome to the Post",
-		Comments: []*Comment{
-			&Comment{
-				Author:        "Dr. Post-Author",
-				Comment:       "Cool post.",
-				DatePublished: time.Now().UTC().Add(-time.Hour / 2),
-			},
-		},
+	p, err := GetPost(pathID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 
 	Tmpl.ExecuteTemplate(w, "post", p)
