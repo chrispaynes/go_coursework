@@ -12,6 +12,7 @@
 * Logging and Analytics
 * Middleware
 * Routing HTTP Requests
+* Send Email
 * Synchronization and Mutual Exclusion Locks
 * Testing
 * User Login/Authentication
