@@ -1,7 +1,9 @@
 #GoCMS
 
 ##Features
+* BoltDB Key/Value Store
 * Callbacks
+* Cookie and Session Creation
 * Context Passing
 * Creating a Go Library
 * Cryptography/bcrypt Hashing Algorithm

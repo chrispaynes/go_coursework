@@ -4,6 +4,8 @@ import (
 	"errors"
 	"sync"
 
+	"github.com/boltdb/bolt"
+
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -11,6 +13,7 @@ import (
 type Store struct {
 	rwm *sync.RWMutex
 	m   map[string]string
+	DB  *bolt.DB
 }
 
 // ErrUserAlreadyExists represents a error that is thrown when a user attempts to register with a username that is already present in the database.
@@ -23,6 +26,7 @@ func newDB() *Store {
 	return &Store{
 		rwm: &sync.RWMutex{},
 		m:   make(map[string]string),
+		DB:  bolt.Open("user.db", 0600, nil),
 	}
 }
 
