@@ -1,0 +1,65 @@
+package users
+
+import (
+	"net/http"
+	"time"
+
+	"github.com/boltdb/bolt"
+)
+
+//var ErrUserNotFound = errors.New("User Not Found")
+
+const cookieName = "_goproj_sess"
+
+// GetSession gets the current session from the cookie
+func GetSession(w http.ResponseWriter, r *http.Request) string {
+	s, err := r.Cookie(cookieName)
+	if err != nil {
+		http.Error(w, "Please login to view this page", http.StatusUnauthorized)
+		return ""
+	}
+
+	user, err := get(s.Value)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusUnauthorized)
+		return ""
+	}
+
+	return user
+}
+
+// SetSession sets a user session
+func SetSession(w http.ResponseWriter, user string) {
+	bytes := string(genRandBytes())
+	err := save(bytes, user)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+
+	// Maintains reference to session by setting a cookie on the request
+	http.SetCookie(w, &http.Cookie{Name: cookieName, Value: bytes, Expires: time.Now().Add(time.Hour * 72), HttpOnly: true})
+}
+
+//var DB, err = bolt.Open("user.db", 0600, nil)
+
+func save(id, user string) error {
+	return DB.DB.Update(func(tx *bolt.Tx) error {
+		b := tx.Bucket([]byte(DB.Sessions))
+		return b.Put([]byte(id), []byte(user))
+	})
+}
+
+func get(id string) (string, error) {
+	var user []byte
+	DB.DB.View(func(tx *bolt.Tx) error {
+		b := tx.Bucket([]byte(DB.Sessions))
+		user = b.Get([]byte(id))
+		return nil
+	})
+
+	if user == nil {
+		return "", ErrUserNotFound
+	}
+
+	return string(user), nil
+}
