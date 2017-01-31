@@ -7,8 +7,6 @@ import (
 	"github.com/boltdb/bolt"
 )
 
-//var ErrUserNotFound = errors.New("User Not Found")
-
 const cookieName = "_goproj_sess"
 
 // GetSession gets the current session from the cookie
@@ -39,8 +37,6 @@ func SetSession(w http.ResponseWriter, user string) {
 	// Maintains reference to session by setting a cookie on the request
 	http.SetCookie(w, &http.Cookie{Name: cookieName, Value: bytes, Expires: time.Now().Add(time.Hour * 72), HttpOnly: true})
 }
-
-//var DB, err = bolt.Open("user.db", 0600, nil)
 
 func save(id, user string) error {
 	return DB.DB.Update(func(tx *bolt.Tx) error {

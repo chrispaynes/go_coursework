@@ -2,6 +2,7 @@ package users
 
 import (
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/boltdb/bolt"
@@ -9,20 +10,23 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-// Store represents an in-memory database to store user information. Uses Synchronization Mutex locks to prevent multiple goroutines from modifying the map at the same time.
+// DB represents an in-memory user database.
+var DB = newDB()
+
+// ErrUserAlreadyExists represents a error that is thrown when a user attempts to register with a username that is already present in the database.
+var ErrUserAlreadyExists = errors.New("User Already Exists!")
+
+// ErrUserNotFound indicates a user was not found within the database.
+var ErrUserNotFound = errors.New("User Not Found")
+
+// Store represents an in-memory database to store user information. The contains two internal stores: Users and a Session store.
 type Store struct {
 	DB       *bolt.DB
 	Users    string
 	Sessions string
 }
 
-// ErrUserAlreadyExists represents a error that is thrown when a user attempts to register with a username that is already present in the database.
-var ErrUserAlreadyExists = errors.New("User Already Exists!")
-var ErrUserNotFound = errors.New("User Not Found")
-
-// DB represents an in-memory user database.
-var DB = newDB()
-
+// newDB construct a BoltDB data store and initializes buckets.
 func newDB() *Store {
 	db, err := bolt.Open("users.db", 0600, &bolt.Options{
 		Timeout: 1 * time.Second,
@@ -32,23 +36,29 @@ func newDB() *Store {
 		panic(err)
 	}
 
-	return &Store{
+	s := &Store{
 		DB:       db,
 		Users:    "Users",
 		Sessions: "Sessions",
 	}
+
+	s.createBucket("Users")
+	s.createBucket("Sessions")
+
+	return s
 }
 
+// createBucket creates a BoltDB bucket to store Key/Value pair collections.
 func (s *Store) createBucket(name string) error {
-	var err error
 	s.DB.Update(func(tx *bolt.Tx) error {
-		_, err = tx.CreateBucketIfNotExists([]byte("Users"))
+		_, err := tx.CreateBucketIfNotExists([]byte(name))
 		if err != nil {
-			return err
+			return fmt.Errorf("create bucket: %s", err)
 		}
 		return nil
 	})
-	return err
+
+	return nil
 }
 
 // NewUser registers and stores a new user with a username and hashed password in the database.
@@ -72,12 +82,14 @@ func NewUser(username, password string) error {
 // AuthenticateUser verifies the username and password matches the username and hashed password stored in the database.
 func AuthenticateUser(username, password string) error {
 	var hashedPassword []byte
+
 	DB.DB.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(DB.Users))
 		hashedPassword = b.Get([]byte(username))
 		return nil
 	})
-	if hashedPassword != nil {
+
+	if hashedPassword == nil {
 		return ErrUserNotFound
 	}
 
@@ -100,13 +112,16 @@ func OverrideOldPassword(username, password string) error {
 // exists checks if a username already exists within the database.
 func exists(username string) error {
 	var result []byte
+
 	DB.DB.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(DB.Users))
 		result = b.Get([]byte(username))
 		return nil
 	})
+
 	if result != nil {
 		return ErrUserAlreadyExists
 	}
+
 	return nil
 }
