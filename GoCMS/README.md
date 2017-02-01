@@ -11,6 +11,7 @@
 * Dynamic Content Rendering
 * Function Chaining and Variable Functions
 * HTML Templating
+* JSON Web Token and Oauth Authentication
 * Logging and Analytics
 * Middleware
 * Routing HTTP Requests

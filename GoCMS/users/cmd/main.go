@@ -34,7 +34,18 @@ func main() {
 	http.HandleFunc("/", authHandler)
 	http.HandleFunc("/restricted", restrictedHandler)
 	http.HandleFunc("/reset", users.ResetPassword)
+	http.HandleFunc("/auth/gplus/authorize", users.AuthURLHandler)
+	http.HandleFunc("/auth/gplus/callback", users.CallbackURLHandler)
 	http.ListenAndServe(":3000", nil)
+}
+
+func oathRestrictedHandler(w http.ResponseWriter, r *http.Request) {
+	user, err := users.VerifyToken(r)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusUnauthorized)
+		return
+	}
+	w.Write([]byte(user))
 }
 
 // authHandler handles user authorization and session setting
