@@ -1,12 +1,16 @@
 package users
 
 import (
+	"crypto/rsa"
 	"encoding/json"
+	"fmt"
+	"io/ioutil"
 	"net/http"
 	"os"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
+	"github.com/dgrijalva/jwt-go/request"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 )
@@ -61,9 +65,13 @@ func CallbackURLHandler(w http.ResponseWriter, r *http.Request) {
 // genToken generates a Web Token and writes a JSON reponse.
 func genToken(w http.ResponseWriter, user string) {
 	token := jwt.New(jwt.SigningMethodHS256)
-	token.Claims["sub"] = user
-	token.Claims["exp"] = time.Now().Add(time.Hour * 72).Unix()
-	token.Claims["iat"] = time.Now().Unix()
+	claims := make(jwt.MapClaims)
+	claims["sub"] = user
+	claims["exp"] = time.Now().Add(time.Hour * 72).Unix()
+	claims["iat"] = time.Now().Unix()
+	//token.Claims["sub"] = user
+	//token.Claims["exp"] = time.Now().Add(time.Hour * 72).Unix()
+	//token.Claims["iat"] = time.Now().Unix()
 
 	tokenString, err := token.SignedString(signingKey)
 	if err != nil {
@@ -78,20 +86,62 @@ func genToken(w http.ResponseWriter, user string) {
 // VerifyToken receives token from HTTP request, verifies the token is valid
 // and returns the username.
 func VerifyToken(r *http.Request) (string, error) {
-	token, err := jwt.Parse(r, func(token, *jwt.Token) (interface{}, error) {
-		claims := token.Claims.(jwt.MapClaims)
-		_, ok := token.Method.(*jwt.SigningMethodHMAC)
-		if !ok {
-			return nil, jwt.ErrSignatureInvalid
-		}
-		return signingKey, nil
-	})
-	if err != nil {
-		return "", err
+	// Extract and parses a JWT token from an HTTP request.
+	// Accepts a request and an extractor interface to define
+	// the token extraction logic.
+
+	//type Keyfunc func(*Token) (interface{}, error)
+	// Parse methods use this callback function to supply
+	// the key for verification.  The function receives the parsed,
+	// but unverified Token.  This allows you to use properties in the
+	// Header of the token (such as `kid`) to identify which key to use.
+
+	token, err := request.ParseFromRequest(r, request.OAuth2Extractor, keyLookupFunc)
+
+	// MapClaims is an alias for map[string]interface{} with built in validation behavior. Must type cast the claims property.
+	claims := token.Claims.(jwt.MapClaims)
+	fmt.Printf("Token for user %v expires %v", claims["user"], claims["exp"])
+
+	//token, err := jwt.Parse(r, func(token, *jwt.Token) (interface{}, error) {
+	//claims := token.Claims.(jwt.MapClaims)
+	//claims := make(jwt.MapClaims)
+	//_, ok := token.Method.(*jwt.SigningMethodHMAC)
+	//if !ok {
+	//	return nil, jwt.ErrSignatureInvalid
+	//}
+	//return signingKey, nil
+	//	})
+	//if err != nil {
+	//return "", err
+	//	}
+
+	//if token.Valid == false {
+	//return "", jwt.ErrInvalidKey
+	//}
+	return claims["sub"].(string), nil
+}
+
+// TODO: Refactor func to ensure the correct algorithm is applied
+// https://github.com/dgrijalva/jwt-go/blob/master/MIGRATION_GUIDE.md
+func keyLookupFunc(*Token) (interface{}, error) {
+	// Don't forget to validate the alg is what you expect:
+	if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+		return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
 	}
 
-	if token.Valid == false {
-		return "", jwt.ErrInvalidKey
+	// Look up key
+	key, err := lookupPublicKey(token.Header["sub"])
+	if err != nil {
+		return nil, err
 	}
-	return token.Claims["sub"].(string), nil
+
+	// Unpack key from PEM encoded PKCS8
+	return jwt.ParseRSAPublicKeyFromPEM(key)
+}
+
+// https://github.com/takamario/go-api-gateway-sample/blob/master/api_gateway.go
+func lookupPublicKey(*jwt.Token) (*rsa.PublicKey, error) {
+	key, _ := ioutil.ReadFile("keys/sample_key.pub")
+	parsedKey, err := jwt.ParseRSAPublicKeyFromPEM(key)
+	return parsedKey, err
 }

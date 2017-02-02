@@ -39,7 +39,7 @@ func main() {
 	http.ListenAndServe(":3000", nil)
 }
 
-func oathRestrictedHandler(w http.ResponseWriter, r *http.Request) {
+func oautthRestrictedHandler(w http.ResponseWriter, r *http.Request) {
 	user, err := users.VerifyToken(r)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusUnauthorized)
