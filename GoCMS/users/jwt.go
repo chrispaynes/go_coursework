@@ -1,10 +1,8 @@
 package users
 
 import (
-	"crypto/rsa"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"time"
@@ -123,14 +121,14 @@ func VerifyToken(r *http.Request) (string, error) {
 
 // TODO: Refactor func to ensure the correct algorithm is applied
 // https://github.com/dgrijalva/jwt-go/blob/master/MIGRATION_GUIDE.md
-func keyLookupFunc(*Token) (interface{}, error) {
+func keyLookupFunc(t *jwt.Token) (interface{}, error) {
 	// Don't forget to validate the alg is what you expect:
-	if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-		return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
+	if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
+		return nil, fmt.Errorf("Unexpected signing method: %v", t.Header["alg"])
 	}
 
 	// Look up key
-	key, err := lookupPublicKey(token.Header["sub"])
+	key, err := lookupPublicKey(t.Header["sub"])
 	if err != nil {
 		return nil, err
 	}
@@ -140,8 +138,8 @@ func keyLookupFunc(*Token) (interface{}, error) {
 }
 
 // https://github.com/takamario/go-api-gateway-sample/blob/master/api_gateway.go
-func lookupPublicKey(*jwt.Token) (*rsa.PublicKey, error) {
-	key, _ := ioutil.ReadFile("keys/sample_key.pub")
-	parsedKey, err := jwt.ParseRSAPublicKeyFromPEM(key)
-	return parsedKey, err
-}
+//func lookupPublicKey(*jwt.Token) (*rsa.PublicKey, error) {
+//key, _ := ioutil.ReadFile("keys/sample_key.pub")
+//parsedKey, err := jwt.ParseRSAPublicKeyFromPEM(key)
+//return parsedKey, err
+//}
