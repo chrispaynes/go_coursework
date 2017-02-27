@@ -32,14 +32,16 @@ func main() {
 	fmt.Printf("Successfully created and authenticated user %s\n", username)
 
 	http.HandleFunc("/", authHandler)
-	http.HandleFunc("/restricted", restrictedHandler)
 	http.HandleFunc("/reset", users.ResetPassword)
 	http.HandleFunc("/auth/gplus/authorize", users.AuthURLHandler)
 	http.HandleFunc("/auth/gplus/callback", users.CallbackURLHandler)
+	http.HandleFunc("/oauth", oauthRestrictedHandler)
+	http.HandleFunc("/restricted", restrictedHandler)
+
 	http.ListenAndServe(":3000", nil)
 }
 
-func oautthRestrictedHandler(w http.ResponseWriter, r *http.Request) {
+func oauthRestrictedHandler(w http.ResponseWriter, r *http.Request) {
 	user, err := users.VerifyToken(r)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusUnauthorized)

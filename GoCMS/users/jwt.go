@@ -1,7 +1,6 @@
 package users
 
 import (
-	"crypto/rsa"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -86,8 +85,8 @@ func genToken(w http.ResponseWriter, user []byte) {
 
 // VerifyToken receives token from HTTP request, verifies the token is valid
 // and returns the username.
-//func VerifyToken(r *http.Request) (string, error) {
-func VerifyToken(r *http.Request) (*rsa.PublicKey, error) {
+func VerifyToken(r *http.Request) (string, error) {
+	//func VerifyToken(r *http.Request) (*rsa.PublicKey, error) {
 	// Extract and parses a JWT token from an HTTP request.
 	// Accepts a request and an extractor interface to define
 	// the token extraction logic.
@@ -104,29 +103,20 @@ func VerifyToken(r *http.Request) (*rsa.PublicKey, error) {
 	claims := token.Claims.(jwt.MapClaims)
 	fmt.Printf("Token for user %v expires %v", claims["user"], claims["exp"])
 
-	key, err := jwt.ParseRSAPublicKeyFromPEM(claims["sub"].([]byte))
-	return key, nil
-
 	// Lookup and unpack key from PEM encoded PKCS8
-	parsedKey, err := jwt.ParseRSAPublicKeyFromPEM(claims["sub"].([]byte))
+	key, err := jwt.ParseRSAPublicKeyFromPEM(claims["sub"].([]byte))
 	if err != nil {
-		return nil, err
+		return "", err
 	}
-	return parsedKey, err
-	//return claims["sub"].([]byte), nil
+
+	return key.N.String(), err
 }
 
-func keyLookupFunc(t *jwt.Token) (*jwt.Token, error) {
+func keyLookupFunc(t *jwt.Token) (interface{}, error) {
 	// Validate the algorithm is the expected algorithm
-	if err, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
+	if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
 		return nil, fmt.Errorf("Unexpected signing method: %v", t.Header["alg"])
 	}
 
-	// Lookup and unpack key from PEM encoded PKCS8
-	//parsedKey, err := jwt.ParseRSAPublicKeyFromPEM(t)
-	//if err != nil {
-	//return nil, err
-	//}
-	//return parsedKey, err
-	return t, err
+	return t, nil
 }
