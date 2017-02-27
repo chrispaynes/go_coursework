@@ -1,6 +1,7 @@
 package users
 
 import (
+	"crypto/rsa"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -22,8 +23,8 @@ var (
 // New creates a new Oauth2 configuration.
 func New() *oauth2.Config {
 	return &oauth2.Config{
-		ClientID:     os.Getenv("Google_Key"),
-		ClientSecret: os.Getenv("google_Secret"),
+		ClientID:     os.Getenv("GOOGLE_KEY"),
+		ClientSecret: os.Getenv("GOOGLE_SECRET"),
 		Endpoint:     google.Endpoint,
 		RedirectURL:  "http://localhost:3000/auth/gplus/callback",
 		Scopes:       []string{"email", "profile"},
@@ -56,12 +57,14 @@ func CallbackURLHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewDecoder(resp.Body).Decode(&user)
 
 	email := user["email"]
-	genToken(w, email)
+	//genToken(w, email)
+	genToken(w, []byte(email))
 
 }
 
 // genToken generates a Web Token and writes a JSON reponse.
-func genToken(w http.ResponseWriter, user string) {
+//func genToken(w http.ResponseWriter, user string) {
+func genToken(w http.ResponseWriter, user []byte) {
 	token := jwt.New(jwt.SigningMethodHS256)
 	claims := make(jwt.MapClaims)
 	claims["sub"] = user
@@ -83,7 +86,8 @@ func genToken(w http.ResponseWriter, user string) {
 
 // VerifyToken receives token from HTTP request, verifies the token is valid
 // and returns the username.
-func VerifyToken(r *http.Request) (string, error) {
+//func VerifyToken(r *http.Request) (string, error) {
+func VerifyToken(r *http.Request) (*rsa.PublicKey, error) {
 	// Extract and parses a JWT token from an HTTP request.
 	// Accepts a request and an extractor interface to define
 	// the token extraction logic.
@@ -94,52 +98,35 @@ func VerifyToken(r *http.Request) (string, error) {
 	// but unverified Token.  This allows you to use properties in the
 	// Header of the token (such as `kid`) to identify which key to use.
 
-	token, err := request.ParseFromRequest(r, request.OAuth2Extractor, keyLookupFunc)
+	token, _ := request.ParseFromRequest(r, request.OAuth2Extractor, keyLookupFunc)
 
 	// MapClaims is an alias for map[string]interface{} with built in validation behavior. Must type cast the claims property.
 	claims := token.Claims.(jwt.MapClaims)
 	fmt.Printf("Token for user %v expires %v", claims["user"], claims["exp"])
 
-	//token, err := jwt.Parse(r, func(token, *jwt.Token) (interface{}, error) {
-	//claims := token.Claims.(jwt.MapClaims)
-	//claims := make(jwt.MapClaims)
-	//_, ok := token.Method.(*jwt.SigningMethodHMAC)
-	//if !ok {
-	//	return nil, jwt.ErrSignatureInvalid
-	//}
-	//return signingKey, nil
-	//	})
-	//if err != nil {
-	//return "", err
-	//	}
+	key, err := jwt.ParseRSAPublicKeyFromPEM(claims["sub"].([]byte))
+	return key, nil
 
-	//if token.Valid == false {
-	//return "", jwt.ErrInvalidKey
-	//}
-	return claims["sub"].(string), nil
-}
-
-// TODO: Refactor func to ensure the correct algorithm is applied
-// https://github.com/dgrijalva/jwt-go/blob/master/MIGRATION_GUIDE.md
-func keyLookupFunc(t *jwt.Token) (interface{}, error) {
-	// Don't forget to validate the alg is what you expect:
-	if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
-		return nil, fmt.Errorf("Unexpected signing method: %v", t.Header["alg"])
-	}
-
-	// Look up key
-	key, err := lookupPublicKey(t.Header["sub"])
+	// Lookup and unpack key from PEM encoded PKCS8
+	parsedKey, err := jwt.ParseRSAPublicKeyFromPEM(claims["sub"].([]byte))
 	if err != nil {
 		return nil, err
 	}
-
-	// Unpack key from PEM encoded PKCS8
-	return jwt.ParseRSAPublicKeyFromPEM(key)
+	return parsedKey, err
+	//return claims["sub"].([]byte), nil
 }
 
-// https://github.com/takamario/go-api-gateway-sample/blob/master/api_gateway.go
-//func lookupPublicKey(*jwt.Token) (*rsa.PublicKey, error) {
-//key, _ := ioutil.ReadFile("keys/sample_key.pub")
-//parsedKey, err := jwt.ParseRSAPublicKeyFromPEM(key)
-//return parsedKey, err
-//}
+func keyLookupFunc(t *jwt.Token) (*jwt.Token, error) {
+	// Validate the algorithm is the expected algorithm
+	if err, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
+		return nil, fmt.Errorf("Unexpected signing method: %v", t.Header["alg"])
+	}
+
+	// Lookup and unpack key from PEM encoded PKCS8
+	//parsedKey, err := jwt.ParseRSAPublicKeyFromPEM(t)
+	//if err != nil {
+	//return nil, err
+	//}
+	//return parsedKey, err
+	return t, err
+}
