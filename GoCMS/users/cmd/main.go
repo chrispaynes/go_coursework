@@ -4,7 +4,10 @@ import (
 	"GoCMS/users"
 	"fmt"
 	"html/template"
+	"io/ioutil"
 	"net/http"
+	"os"
+	"strings"
 )
 
 const loginTemplate = `
@@ -20,16 +23,7 @@ const loginTemplate = `
 `
 
 func main() {
-	username, password := "GMAIL_USERNAME", "GMAIL_PASSWORD"
-	//username, password := os.Getenv("GMAIL_USERNAME"), os.Getenv("GMAIL_PASSWORD")
-
-	err := users.NewUser(username, password)
-	if err != nil {
-		fmt.Printf("Couldn't create user %s\n", username, err.Error())
-		return
-	}
-
-	fmt.Printf("Successfully created and authenticated user %s\n", username)
+	initUser()
 
 	http.HandleFunc("/", authHandler)
 	http.HandleFunc("/reset", users.ResetPassword)
@@ -39,6 +33,31 @@ func main() {
 	http.HandleFunc("/restricted", restrictedHandler)
 
 	http.ListenAndServe(":3000", nil)
+}
+
+func initUser() {
+	f, err := ioutil.ReadFile("../secret/user_config.txt")
+	check(err)
+
+	os.Setenv("GMAIL_USR", strings.Split(string(f), "\n")[0])
+	os.Setenv("GMAIL_PWD", strings.Split(string(f), "\n")[1])
+	usr, pwd := os.Getenv("GMAIL_USR"), os.Getenv("GMAIL_PWD")
+
+	fmt.Printf("Attempting to authenticating user: %s using password: %s\n", usr, pwd)
+
+	err = users.NewUser(usr, pwd)
+	if err != nil {
+		fmt.Printf("Couldn't create user %s\n%s", usr, err.Error())
+		return
+	}
+
+	fmt.Printf("Successfully created and authenticated user %s\n", usr)
+}
+
+func check(e error) {
+	if e != nil {
+		panic(e)
+	}
 }
 
 func oauthRestrictedHandler(w http.ResponseWriter, r *http.Request) {
