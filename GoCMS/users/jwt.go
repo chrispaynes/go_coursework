@@ -30,6 +30,12 @@ func New() *oauth2.Config {
 	}
 }
 
+func check(e error) {
+	if e != nil {
+		panic(e)
+	}
+}
+
 // AuthURLHandler redirects user to Oauth sign-in page for a given provider.
 func AuthURLHandler(w http.ResponseWriter, r *http.Request) {
 	authURL := provider.AuthCodeURL("", oauth2.AccessTypeOffline)
@@ -97,26 +103,27 @@ func VerifyToken(r *http.Request) (string, error) {
 	// but unverified Token.  This allows you to use properties in the
 	// Header of the token (such as `kid`) to identify which key to use.
 
-	token, _ := request.ParseFromRequest(r, request.OAuth2Extractor, keyLookupFunc)
+	token, err := request.ParseFromRequest(r, request.OAuth2Extractor, keyLookupFunc)
+	check(err)
 
 	// MapClaims is an alias for map[string]interface{} with built in validation behavior. Must type cast the claims property.
 	claims := token.Claims.(jwt.MapClaims)
-	fmt.Printf("Token for user %v expires %v", claims["user"], claims["exp"])
+	//fmt.Printf("Token for user %v expires %v", claims["user"], claims["exp"])
 
 	// Lookup and unpack key from PEM encoded PKCS8
 	key, err := jwt.ParseRSAPublicKeyFromPEM(claims["sub"].([]byte))
-	if err != nil {
-		return "", err
-	}
+	//_, err := jwt.ParseRSAPublicKeyFromPEM(claims["sub"].([]byte))
+	check(err)
 
 	return key.N.String(), err
+
 }
 
+// Validate the algorithm is the expected algorithm
 func keyLookupFunc(t *jwt.Token) (interface{}, error) {
-	// Validate the algorithm is the expected algorithm
 	if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
 		return nil, fmt.Errorf("Unexpected signing method: %v", t.Header["alg"])
 	}
+	return t.Method.(*jwt.SigningMethodHMAC), nil
 
-	return t, nil
 }
