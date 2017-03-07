@@ -35,7 +35,7 @@ func main() {
 	http.ListenAndServe(":3000", nil)
 }
 
-func initUser() {
+func initUser() *User {
 	f, err := ioutil.ReadFile("../secret/user_config.txt")
 	check(err)
 
@@ -52,6 +52,7 @@ func initUser() {
 	}
 
 	fmt.Printf("Successfully created and authenticated user %s\n", usr)
+	return usr
 }
 
 func check(e error) {
@@ -61,7 +62,9 @@ func check(e error) {
 }
 
 func oauthRestrictedHandler(w http.ResponseWriter, r *http.Request) {
+	users.GenToken(w)
 	user, err := users.VerifyToken(r)
+	fmt.Println("oauthRestrictedHandler ERROR:", err)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusUnauthorized)
 		return
