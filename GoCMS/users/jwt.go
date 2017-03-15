@@ -24,19 +24,21 @@ var (
 	verifyKey   *rsa.PublicKey
 )
 
-// clientID returns the clientID for oauth provider
-func clientID() string {
+// initClient initializes the client information for Oauth2
+func initClient() {
 	c, err := ioutil.ReadFile("../secret/client_config.txt")
 	check(err)
 
 	os.Setenv("ClientID", strings.Split(string(c), "\n")[0])
-	return os.Getenv("ClientID")
+	os.Setenv("ClientSecret", strings.Split(string(c), "\n")[1])
 }
 
 // New creates a new Oauth2 configuration.
 func New() *oauth2.Config {
+	initClient()
+
 	return &oauth2.Config{
-		ClientID:     clientID,
+		ClientID:     os.Getenv("ClientID"),
 		ClientSecret: os.Getenv("ClientSecret"),
 		Endpoint:     google.Endpoint,
 		RedirectURL:  "http://localhost:3000/auth/gplus/callback",
