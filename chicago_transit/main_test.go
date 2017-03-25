@@ -14,10 +14,20 @@ func rangeTestTable(t *testing.T, actual, tc []Bus) {
 	}
 }
 
+func openMockData(t *testing.T, src string) *os.File {
+	f, err := os.Open("mocks/route22.xml")
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	return f
+}
+
 func TestXMLContentResponse(t *testing.T) {
 	t.Log("fetchRouteData() receives XML Response from Chicago Transit Authority API")
+
 	_, err := fetchRouteData(22)
-	//resultContentType := resp.Header.Get("Content-Type")
 	resultContentType := "text/xml;charset=UTF-8"
 	expectedContentType := "text/xml;charset=UTF-8"
 
@@ -34,15 +44,9 @@ func TestXMLContentResponse(t *testing.T) {
 func TestUnmarshalToSlice(t *testing.T) {
 	t.Log("mapToRoute() stores XML in Routes struct")
 
-	mockData, err := os.Open("mocks/route22.xml")
-	actual := mapToRoute(mockData)
+	f := openMockData(t, "mocks/route22.xml")
 
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	defer mockData.Close()
-
+	actual := mapToRoute(f)
 	tc := Route{Buses: []Bus{
 		{4368, Point{41.87254333496094, -87.63065338134766}, "South Bound"},
 		{4388, Point{42.01676344871521, -87.67540860176086}, "South Bound"},
@@ -69,9 +73,9 @@ func TestUnmarshalToSlice(t *testing.T) {
 func TestFindsBusesNorthOfOffice(t *testing.T) {
 	t.Log("filterNorthOfOffice returns buses currently north of 41.98 degrees latitude")
 
-	mockData, err := os.Open("mocks/route22.xml")
-	defer mockData.Close()
-	route := mapToRoute(mockData)
+	f := openMockData(t, "mocks/route22.xml")
+	route := mapToRoute(f)
+
 	actual := filterNorthOfOffice(route.Buses)
 	tc := []Bus{
 		{4388, Point{42.01676344871521, -87.67540860176086}, "South Bound"},
@@ -82,26 +86,18 @@ func TestFindsBusesNorthOfOffice(t *testing.T) {
 		{4339, Point{42.018760681152344, -87.67317962646484}, "North West Bound"},
 	}
 
-	if err != nil {
-		t.Fatal(err)
-	}
-
 	rangeTestTable(t, actual, tc)
 }
 
 func TestCreateTable(t *testing.T) {
 	t.Log("createTable() creates a data table of buses")
-	mockData, err := os.Open("mocks/route22.xml")
-	defer mockData.Close()
 
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	routes := mapToRoute(mockData)
+	f := openMockData(t, "mocks/route22.xml")
+	routes := mapToRoute(f)
 	filtered := filterNorthOfOffice(routes.Buses)
-	result := createTable(filtered, "BUSES NORTH OF 41.98 LATITUDE")
-	expected :=
+
+	actual := createTable(filtered, "BUSES NORTH OF 41.98 LATITUDE")
+	tc :=
 		"\n----------------------------------------------------" +
 			"\nBUSES NORTH OF 41.98 LATITUDE" +
 			"\n----------------------------------------------------" +
@@ -114,9 +110,9 @@ func TestCreateTable(t *testing.T) {
 			"4339\t 42.018760681152344\t -87.67317962646484\t North West Bound\n" +
 			"----------------------------------------------------"
 
-	if result != expected {
-		t.Error("Received:\t", result)
-		t.Error("Expected:\t", expected)
+	if actual != tc {
+		t.Error("Received:\t", actual)
+		t.Error("Expected:\t", tc)
 	}
 }
 
@@ -154,21 +150,15 @@ func TestFindDistance(t *testing.T) {
 
 func TestWithinHalfMile(t *testing.T) {
 	t.Log("withinHalfMile() returns buses within 0.5 miles of the 41.98 latitude")
-	mockData, err := os.Open("mocks/route22.xml")
-	defer mockData.Close()
 
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	routes := mapToRoute(mockData)
+	f := openMockData(t, "mocks/route22.xml")
+	routes := mapToRoute(f)
 	filtered := filterNorthOfOffice(routes.Buses)
-	result := withinHalfMile(filtered)[0]
 
-	expected := Bus{4377, Point{41.98397789001465, -87.66879043579101}, "North Bound"}
-
-	if result != expected {
-		t.Error("Expected: \t", result)
-		t.Error("Received: \t", expected)
+	actual := withinHalfMile(filtered)
+	tc := []Bus{
+		{4377, Point{41.98397789001465, -87.66879043579101}, "North Bound"},
 	}
+
+	rangeTestTable(t, actual, tc)
 }
