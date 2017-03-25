@@ -5,6 +5,15 @@ import (
 	"testing"
 )
 
+func rangeTestTable(t *testing.T, actual, tc []Bus) {
+	for k, v := range actual {
+		if v != tc[k] {
+			t.Error("Expected: \t", v)
+			t.Fatal("Received: \t", tc[k])
+		}
+	}
+}
+
 func TestXMLContentResponse(t *testing.T) {
 	t.Log("fetchRouteData() receives XML Response from Chicago Transit Authority API")
 	_, err := fetchRouteData(22)
@@ -26,7 +35,7 @@ func TestUnmarshalToSlice(t *testing.T) {
 	t.Log("mapToRoute() stores XML in Routes struct")
 
 	mockData, err := os.Open("mocks/route22.xml")
-	result := mapToRoute(mockData)
+	actual := mapToRoute(mockData)
 
 	if err != nil {
 		t.Fatal(err)
@@ -34,7 +43,7 @@ func TestUnmarshalToSlice(t *testing.T) {
 
 	defer mockData.Close()
 
-	expected := Route{Buses: []Bus{
+	tc := Route{Buses: []Bus{
 		{4368, Point{41.87254333496094, -87.63065338134766}, "South Bound"},
 		{4388, Point{42.01676344871521, -87.67540860176086}, "South Bound"},
 		{4375, Point{41.8867525100708, -87.62945556640625}, "North Bound"},
@@ -54,12 +63,7 @@ func TestUnmarshalToSlice(t *testing.T) {
 		{4339, Point{42.018760681152344, -87.67317962646484}, "North West Bound"}},
 		Time: "3:35 PM"}
 
-	for i, bus := range result.Buses {
-		if bus != expected.Buses[i] {
-			t.Error("Expected: \t", expected.Buses[i])
-			t.Error("Received: \t", bus)
-		}
-	}
+	rangeTestTable(t, actual.Buses, tc.Buses)
 }
 
 func TestFindsBusesNorthOfOffice(t *testing.T) {
@@ -68,8 +72,8 @@ func TestFindsBusesNorthOfOffice(t *testing.T) {
 	mockData, err := os.Open("mocks/route22.xml")
 	defer mockData.Close()
 	route := mapToRoute(mockData)
-	result := filterNorthOfOffice(route.Buses)
-	expected := []Bus{
+	actual := filterNorthOfOffice(route.Buses)
+	tc := []Bus{
 		{4388, Point{42.01676344871521, -87.67540860176086}, "South Bound"},
 		{4350, Point{41.99443111134999, -87.67027897621269}, "South Bound"},
 		{4377, Point{41.98397789001465, -87.66879043579101}, "North Bound"},
@@ -82,12 +86,7 @@ func TestFindsBusesNorthOfOffice(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	for index, bus := range result {
-		if bus != expected[index] {
-			t.Error("Expected: \t", bus)
-			t.Error("Received: \t", expected[index])
-		}
-	}
+	rangeTestTable(t, actual, tc)
 }
 
 func TestCreateTable(t *testing.T) {
