@@ -119,32 +119,24 @@ func TestCreateTable(t *testing.T) {
 func TestFindDistance(t *testing.T) {
 	t.Log("findDistance() finds the great-circle distance between two map points")
 
-	p1 := &Point{41.9801433, -87.6683411}
-	p2 := &Point{41.9855176, -87.6702406}
-	p3 := &Point{41.9955993, -87.6809199}
-	p4 := &Point{41.944268, -87.6670651}
+	office := &Point{41.9801433, -87.6683411}
 
-	result1 := findDistance(p1, p2)
-	result2 := findDistance(p1, p3)
-	result3 := findDistance(p1, p4)
-
-	expected1 := 0.38414780465548903
-	expected2 := 1.2488013385943528
-	expected3 := 2.481016128867292
-
-	if result1 != expected1 {
-		t.Error("Received:\t", result1)
-		t.Error("Expected:\t", expected1)
+	actual := []*Point{
+		{41.9855176, -87.6702406},
+		{41.9955993, -87.6809199},
+		{41.944268, -87.6670651},
+	}
+	tc := []float64{
+		0.38414780465548903,
+		1.2488013385943528,
+		2.481016128867292,
 	}
 
-	if result2 != expected2 {
-		t.Error("Received:\t", result2)
-		t.Error("Expected:\t", expected2)
-	}
-
-	if result3 != expected3 {
-		t.Error("Received:\t", result3)
-		t.Error("Expected:\t", expected3)
+	for k, v := range actual {
+		if findDistance(office, v) != tc[k] {
+			t.Error("Expected: \t", findDistance(office, v))
+			t.Fatal("Received: \t", tc[k])
+		}
 	}
 }
 
