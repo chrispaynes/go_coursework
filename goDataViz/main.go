@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"log"
 	"math/rand"
@@ -8,13 +9,27 @@ import (
 	"time"
 )
 
+type point struct {
+	x, y int
+}
+
+var points = &[]point{}
+
 func main() {
-	_, err := generateRandomDataPoints("points.txt", time.Now().UnixNano())
+	var err error
+	f, err := generateRandomDataPoints("points.txt", time.Now().UnixNano())
 
 	if err != nil {
 		log.Fatal("could not create data file:", err)
 	}
 
+	p, err := scanDataPoints(f.Name(), points)
+
+	if err != nil {
+		log.Fatal("could not scan data points:", err)
+	}
+
+	fmt.Print((*p)[0].y)
 }
 
 func generateRandomDataPoints(file string, seed int64) (*os.File, error) {
@@ -45,4 +60,29 @@ func generateRandomDataPoints(file string, seed int64) (*os.File, error) {
 	}
 
 	return f, nil
+}
+
+func scanDataPoints(file string, p *[]point) (*[]point, error) {
+	f, err := os.Open(file)
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer f.Close()
+
+	s := bufio.NewScanner(f)
+
+	for s.Scan() {
+		var x, y int
+		_, err := fmt.Sscanf(s.Text(), "%d,%d", &x, &y)
+
+		if err != nil {
+			return nil, err
+		}
+
+		*p = append(*p, point{x, y})
+	}
+
+	return p, nil
 }
