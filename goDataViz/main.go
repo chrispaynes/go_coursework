@@ -3,10 +3,15 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"image/color"
 	"log"
 	"math/rand"
 	"os"
 	"time"
+
+	"gonum.org/v1/plot/plotter"
+
+	"gonum.org/v1/plot"
 )
 
 type point struct {
@@ -16,20 +21,22 @@ type point struct {
 var points = &[]point{}
 
 func main() {
-	var err error
 	f, err := generateRandomDataPoints("points.txt", time.Now().UnixNano())
 
 	if err != nil {
-		log.Fatal("could not create data file:", err)
+		log.Fatalf("could not create data file: %v", err)
 	}
 
-	p, err := scanDataPoints(f.Name(), points)
+	pts, err := scanDataPoints(f.Name(), points)
+	_ = pts
 
 	if err != nil {
-		log.Fatal("could not scan data points:", err)
+		log.Fatalf("could not scan data points %v", err)
 	}
 
-	fmt.Print((*p)[0].y)
+	if err = plotData("plot.png", "Plot Title", "x", "y"); err != nil {
+		log.Fatalf("could not plot data: %v", err)
+	}
 }
 
 func generateRandomDataPoints(file string, seed int64) (*os.File, error) {
@@ -85,4 +92,35 @@ func scanDataPoints(file string, p *[]point) (*[]point, error) {
 	}
 
 	return p, nil
+}
+
+func plotData(file, title, xlabel, ylabel string) error {
+	p, err := plot.New()
+
+	if err != nil {
+		return err
+	}
+
+	p.Title.Text = title
+	p.X.Label.Text = xlabel
+	p.Y.Label.Text = ylabel
+
+	data := make(plotter.XYs, 100)
+
+	for i, a := range *points {
+		data[i].X = float64(a.x)
+		data[i].Y = float64(a.y)
+	}
+
+	s, err := plotter.NewScatter(data)
+
+	if err != nil {
+		return fmt.Errorf("could not create new scatter: %v", err)
+	}
+
+	s.GlyphStyle.Color = color.RGBA{R: 255, B: 128, A: 255}
+
+	p.Add(s)
+
+	return p.Save(600, 600, file)
 }
